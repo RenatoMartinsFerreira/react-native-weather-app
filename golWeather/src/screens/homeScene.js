@@ -35,7 +35,6 @@ class HomeScene extends Component {
           <View style={styles.topContainer}>
             <Text style={{backgroundColor: 'white'}}>SearchBar</Text>
           </View>
-          <View style={styles.centerContainer} />
           <View style={styles.bottomContainer}>
             <View style={styles.visibleBottomContainer}>
               <Text>Bottom Content</Text>
@@ -77,9 +76,6 @@ const styles = StyleSheet.create({
     flex: 0.2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  centerContainer: {
-    flex: 0.5,
   },
   bottomContainer: {
     backgroundColor: 'white',
