@@ -3,11 +3,11 @@ import {SafeAreaView, StyleSheet, StatusBar} from 'react-native';
 
 import MapView from 'react-native-maps';
 
-const App: () => React$Node = () => {
+function HomeScene() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={{flex: 1}} >
+      <SafeAreaView style={{flex: 1}}>
         <MapView
           style={{flex: 1}}
           initialRegion={{
@@ -20,8 +20,8 @@ const App: () => React$Node = () => {
       </SafeAreaView>
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({});
 
-export default App;
+export default HomeScene;
