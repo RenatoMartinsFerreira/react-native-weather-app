@@ -8,6 +8,9 @@ import {
   Dimensions,
 } from 'react-native';
 import WeatherService from 'golWeather/src/services/weatherService';
+import Icon from 'golWeather/src/commons/icons';
+import {fontScale} from 'golWeather/src/commons/scaling';
+import colors from 'golWeather/src/commons/colors';
 
 import MapView from 'react-native-maps';
 
@@ -17,6 +20,7 @@ class HomeScene extends Component {
     this.state = {
       loading: true,
       city: '',
+      woeid: 44418,
     };
     this.weatherService = new WeatherService();
   }
@@ -35,6 +39,11 @@ class HomeScene extends Component {
           <View style={styles.bottomContainer}>
             <View style={styles.visibleBottomContainer}>
               <Text>Bottom Content</Text>
+              <Icon
+                name="hc"
+                size={fontScale(24)}
+                color={colors.awesomeOrange}
+              />
             </View>
           </View>
 
