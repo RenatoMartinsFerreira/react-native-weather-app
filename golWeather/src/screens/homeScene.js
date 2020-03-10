@@ -14,7 +14,7 @@ import colors from 'golWeather/src/commons/colors';
 import MapView from 'react-native-maps';
 
 import {store} from 'golWeather/src/redux/store';
-import {saveWeather} from 'golWeather/src/redux/actions';
+import {asyncSaveWeather} from 'golWeather/src/redux/actions';
 
 class HomeScene extends Component {
   constructor(props) {
@@ -25,12 +25,6 @@ class HomeScene extends Component {
       woeid: 44418,
     };
     this.weatherService = new WeatherService();
-
-    console.log('this', this);
-  }
-
-  componentDidMount() {
-    store.dispatch(saveWeather({weather: this.state.woeid}));
   }
 
   render() {
@@ -44,6 +38,7 @@ class HomeScene extends Component {
           <View style={styles.bottomContainer}>
             <View style={styles.visibleBottomContainer}>
               <Text>Bottom Content</Text>
+
               <Icon
                 name="hc"
                 size={fontScale(24)}
