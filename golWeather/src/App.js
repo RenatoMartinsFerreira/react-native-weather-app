@@ -12,6 +12,7 @@ const Stack = createStackNavigator();
 // Connect the screens to Redux
 const HomeContainer = connect(state => ({
   storeWeather: state.weatherReducer,
+  currentWeather: state.currentWeatherReducer,
 }))(HomeScene);
 
 function App() {

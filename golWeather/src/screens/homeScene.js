@@ -4,57 +4,136 @@ import {
   StyleSheet,
   StatusBar,
   View,
-  Text,
   Dimensions,
+  Animated,
+  Easing,
 } from 'react-native';
-import WeatherService from 'golWeather/src/services/weatherService';
-import Icon from 'golWeather/src/commons/icons';
-import {fontScale} from 'golWeather/src/commons/scaling';
+import {horizontalScale, verticalScale} from 'golWeather/src/commons/scaling';
 import colors from 'golWeather/src/commons/colors';
-import MapView from 'react-native-maps';
+
+import {
+  ResumedInfoComponent,
+  MapViewComponent,
+  FullInfoComponent,
+} from 'golWeather/src/components/presentation';
 
 import {store} from 'golWeather/src/redux/store';
-import {asyncSaveWeather} from 'golWeather/src/redux/actions';
+import {asyncSetWeather} from 'golWeather/src/redux/actions';
+
+import SearchBar from 'golWeather/src/components/presentation/searchBar';
 
 class HomeScene extends Component {
   constructor(props) {
     super({...props});
     this.state = {
       loading: true,
-      city: '',
-      woeid: 44418,
+      showInfo: false,
     };
-    this.weatherService = new WeatherService();
+    this.translateYValue = new Animated.Value(0);
+  }
+  switchInfo() {
+    this.setState({showInfo: !this.state.showInfo});
+
+    Animated.timing(this.translateYValue, {
+      toValue: this.state.showInfo ? 0 : 1,
+      duration: 1000,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start(() => {});
   }
 
+  updateWeather() {
+    store.dispatch(asyncSetWeather(this.props.currentWeather.woeid));
+  }
+
+  resumedInfo = () => {
+    return (
+      <ResumedInfoComponent
+        title={this.props.currentWeather.title}
+        waitSearch={
+          this.props.currentWeather.consolidated_weather ? true : false
+        }
+        icon={
+          this.props.currentWeather.consolidated_weather
+            ? this.props.currentWeather.consolidated_weather[0]
+                .weather_state_abbr
+            : ''
+        }
+        onOpen={() => this.switchInfo()}
+        temp={
+          this.props.currentWeather.consolidated_weather
+            ? this.props.currentWeather.consolidated_weather[0].the_temp
+            : ''
+        }
+        date={new Date(this.props.currentWeather.time).toLocaleDateString()}
+        updateWeather={() => this.updateWeather()}
+      />
+    );
+  };
+
+  fullInfo = () => {
+    return (
+      <FullInfoComponent
+        weatherList={
+          this.props.currentWeather
+            ? this.props.currentWeather.consolidated_weather
+            : []
+        }
+        onClose={() => this.switchInfo()}
+        updateWeather={() => this.updateWeather()}
+      />
+    );
+  };
+
   render() {
+    const infoModalTranslation = this.translateYValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [
+        Dimensions.get('window').height * 0.7,
+        Dimensions.get('window').height * 0.15,
+      ],
+    });
+
+    const infoModalOpacity = this.translateYValue.interpolate({
+      inputRange: [0, 0.4, 0.6, 1],
+      outputRange: [1, 0, 0, 1],
+    });
     return (
       <>
         <StatusBar backgroundColor="#FF5A00" barStyle="light-content" />
         <SafeAreaView style={styles.constainer}>
           <View style={styles.topContainer}>
-            <Text style={{backgroundColor: 'white'}}>SearchBar</Text>
+            <SearchBar onSelect={searchText => this.OnSearch(searchText)} />
           </View>
-          <View style={styles.bottomContainer}>
-            <View style={styles.visibleBottomContainer}>
-              <Text>Bottom Content</Text>
+          <Animated.View
+            style={[
+              styles.bottomContainer,
+              {
+                transform: [{translateY: infoModalTranslation}],
+              },
+            ]}>
+            <Animated.View
+              style={{
+                flex: 1,
+                alignSelf: 'stretch',
+                opacity: infoModalOpacity,
+              }}>
+              {this.state.showInfo ? this.fullInfo() : this.resumedInfo()}
+              {/* {this.resumedInfo()} */}
+            </Animated.View>
+          </Animated.View>
 
-              <Icon
-                name="hc"
-                size={fontScale(24)}
-                color={colors.awesomeOrange}
-              />
-            </View>
-          </View>
-
-          <MapView
-            style={styles.mapContainer}
-            initialRegion={{
-              latitude: 37.78825,
-              longitude: -122.4324,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
+          <MapViewComponent
+            latitude={parseFloat(
+              this.props.currentWeather.latt_long
+                ? this.props.currentWeather.latt_long.split(',')[0]
+                : 12,
+            )}
+            longitude={parseFloat(
+              this.props.currentWeather.latt_long
+                ? this.props.currentWeather.latt_long.split(',')[1]
+                : 12,
+            )}
           />
         </SafeAreaView>
       </>
@@ -74,9 +153,12 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
   },
   topContainer: {
-    flex: 0.2,
+    // flex: 0.6,
+    height: Dimensions.get('window').height * 0.5,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: horizontalScale(20),
+    paddingTop: verticalScale(20),
   },
   bottomContainer: {
     backgroundColor: 'white',
@@ -87,13 +169,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignSelf: 'stretch',
     position: 'absolute',
-    transform: [{translateY: Dimensions.get('window').height * 0.8}],
-  },
-  visibleBottomContainer: {
-    height: Dimensions.get('window').height * 0.2,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    justifyContent: 'center',
+    transform: [{translateY: Dimensions.get('window').height * 0.7}],
+    borderWidth: 1,
+    borderColor: colors.awesomeOrange,
   },
 });
 
