@@ -1,4 +1,9 @@
-import {SAVE_WEATHER, ASYNC_SAVE_WEATHER} from './actionTypes';
+import {
+  SAVE_WEATHER,
+  ASYNC_SAVE_WEATHER,
+  SAVE_WEATHER_LIST,
+  ASYNC_SAVE_WEATHER_LIST,
+} from './actionTypes';
 
 export const saveWeather = payload => ({
   type: SAVE_WEATHER,
@@ -7,5 +12,15 @@ export const saveWeather = payload => ({
 
 export const asyncSaveWeather = payload => ({
   type: ASYNC_SAVE_WEATHER,
+  payload,
+});
+
+export const saveWeatherList = payload => ({
+  type: SAVE_WEATHER_LIST,
+  payload,
+});
+
+export const asyncSaveWeatherList = payload => ({
+  type: ASYNC_SAVE_WEATHER_LIST,
   payload,
 });
