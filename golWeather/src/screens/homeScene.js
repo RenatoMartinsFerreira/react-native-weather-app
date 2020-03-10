@@ -9,31 +9,17 @@ import {
   Easing,
   Text,
 } from 'react-native';
-import Icon from 'golWeather/src/commons/icons';
-import {
-  fontScale,
-  horizontalScale,
-  verticalScale,
-} from 'golWeather/src/commons/scaling';
+import {horizontalScale, verticalScale} from 'golWeather/src/commons/scaling';
 import colors from 'golWeather/src/commons/colors';
-import MapView from 'react-native-maps';
-
-import {store} from 'golWeather/src/redux/store';
-import {
-  asyncSaveWeather,
-  asyncSaveWeatherList,
-} from 'golWeather/src/redux/actions';
+import MapView, {AnimatedRegion} from 'react-native-maps';
 
 import {
-  GenericButton,
-  GenericTextComponent,
-  IconTextComponent,
+  ResumedInfoComponent,
+  MapViewComponent,
+  FullInfoComponent,
 } from 'golWeather/src/components/presentation';
 
-
 import SearchBar from 'golWeather/src/components/presentation/searchBar';
-
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 class HomeScene extends Component {
   constructor(props) {
@@ -41,17 +27,10 @@ class HomeScene extends Component {
     this.state = {
       loading: true,
       showInfo: false,
-      searchString: '',
-      woeid: 44418,
     };
     this.translateYValue = new Animated.Value(0);
   }
-
-  componentDidMount() {
-    // store.dispatch(asyncSaveWeather({weather: this.state.woeid}));
-  }
-
-  openInfo() {
+  switchInfo() {
     this.setState({showInfo: !this.state.showInfo});
 
     Animated.timing(this.translateYValue, {
@@ -64,55 +43,25 @@ class HomeScene extends Component {
 
   resumedInfo = () => {
     return (
-      <View style={styles.visibleBottomContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            this.openInfo();
-          }}
-          style={styles.verticalLine}>
-          <Icon
-            name="arrow_down"
-            size={fontScale(18)}
-            color={colors.awesomeOrange}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.verticalLine}>
-          <GenericTextComponent text={'São Paulo'} />
-
-          <Icon
-            name={'favorite'}
-            color={colors.awesomeOrange}
-            size={fontScale(34)}
-          />
-        </View>
-        <View style={styles.verticalLine}>
-          <IconTextComponent
-            icon="hc"
-            iconColor={colors.lightOrange}
-            text="08/03/2020"
-          />
-          <GenericTextComponent text={'24ºC'} />
-          <GenericTextComponent text={'teste'} />
-          {/* <GenericTextComponent text={this.props.storeWeather.teste} /> */}
-        </View>
-        <GenericButton text={'Atualizar previsão'} />
-      </View>
+      <ResumedInfoComponent
+        title={this.props.currentWeather.title}
+        icon={
+          this.props.currentWeather.consolidated_weather[0].weather_state_abbr
+        }
+        onOpen={() => this.switchInfo()}
+        temp={this.props.currentWeather.consolidated_weather[0].the_temp}
+        date={new Date(this.props.currentWeather.time).toLocaleDateString()}
+      />
     );
   };
 
   fullInfo = () => {
     return (
-      <View style={{flex: 1}}>
-        <Text>full Info</Text>
-      </View>
+      <FullInfoComponent
+        weatherList={this.props.currentWeather.consolidated_weather}
+        onClose={() => this.switchInfo()}
+      />
     );
-  };
-
-  OnSearch = searchText => {
-    console.log('teste', searchText);
-
-    // store.dispatch(asyncSaveWeatherList({weather: this.state.woeid}));
   };
 
   render() {
@@ -148,19 +97,18 @@ class HomeScene extends Component {
                 alignSelf: 'stretch',
                 opacity: infoModalOpacity,
               }}>
-              {/* {this.state.showInfo ? this.fullInfo() : this.resumedInfo()} */}
-              {this.resumedInfo()}
+              {this.state.showInfo ? this.fullInfo() : this.resumedInfo()}
+              {/* {this.resumedInfo()} */}
             </Animated.View>
           </Animated.View>
 
-          <MapView
-            style={styles.mapContainer}
-            initialRegion={{
-              latitude: 37.78825,
-              longitude: -122.4324,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
+          <MapViewComponent
+            latitude={parseFloat(
+              this.props.currentWeather.latt_long.split(',')[0],
+            )}
+            longitude={parseFloat(
+              this.props.currentWeather.latt_long.split(',')[1],
+            )}
           />
         </SafeAreaView>
       </>
@@ -199,19 +147,6 @@ const styles = StyleSheet.create({
     transform: [{translateY: Dimensions.get('window').height * 0.7}],
     borderWidth: 1,
     borderColor: colors.awesomeOrange,
-  },
-  verticalLine: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignSelf: 'stretch',
-    paddingHorizontal: horizontalScale(50),
-    alignItems: 'center',
-  },
-  visibleBottomContainer: {
-    height: Dimensions.get('window').height * 0.3,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    justifyContent: 'space-around',
   },
 });
 

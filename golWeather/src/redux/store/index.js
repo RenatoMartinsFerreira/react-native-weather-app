@@ -9,7 +9,7 @@ import rootSaga from '../sagas/rootSagas';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['weatherReducer'],
+  whitelist: ['weatherReducer', 'weatherListReducer', 'currentWeatherReducer'],
   blacklist: [''],
 };
 

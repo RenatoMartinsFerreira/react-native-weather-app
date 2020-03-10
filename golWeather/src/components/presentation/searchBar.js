@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   TextInput,
-  Text,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
@@ -17,7 +16,7 @@ import colors from 'golWeather/src/commons/colors';
 import Icon from 'golWeather/src/commons/icons';
 import {store} from 'golWeather/src/redux/store';
 import {
-  asyncSaveWeather,
+  asyncSetWeather,
   asyncSaveWeatherList,
 } from 'golWeather/src/redux/actions';
 import {LocationItemComponent} from 'golWeather/src/components/presentation';
@@ -27,27 +26,47 @@ class SearchBar extends Component {
     super({...props});
     this.state = {
       searchString: '',
+      searchBox: false,
     };
 
     this.onSelect = this.props.onSelect;
   }
+
   searchLocation = searchString => {
     store.dispatch(asyncSaveWeatherList(searchString));
 
     this.setState({
       searchString: searchString,
+      searchBox: true,
     });
+  };
+
+  setCurrentLocation = (woeid, title) => {
+    this.setState({searchBox: false, searchString: title});
+    store.dispatch(asyncSetWeather(woeid));
   };
 
   optionsContainer = () => {
     return (
       <View style={styles.optionsContainer}>
         <FlatList
-          data={this.props.weatherListReducer}
-          renderItem={({item}) => (
+          style={{
+            flex: 1,
+            alignSelf: 'stretch',
+            paddingHorizontal: horizontalScale(20),
+            paddingVertical: verticalScale(5),
+          }}
+          data={
+            this.props.weatherListReducer.length
+              ? this.props.weatherListReducer.slice(0, 7)
+              : []
+          }
+          renderItem={({item, index}) => (
             <TouchableOpacity
+              key={index}
+              style={{paddingVertical: verticalScale(10)}}
               onPress={() => {
-                console.log('item', item);
+                this.setCurrentLocation(item.woeid, item.title);
               }}>
               <LocationItemComponent
                 name={item.title}
@@ -56,16 +75,16 @@ class SearchBar extends Component {
             </TouchableOpacity>
           )}
           keyExtractor={item => item.id}
+          ItemSeparatorComponent={() => (
+            <View
+              style={{
+                alignSelf: 'stretch',
+                backgroundColor: colors.awesomeOrange,
+                height: 1,
+              }}
+            />
+          )}
         />
-
-        {/* <TouchableOpacity
-          onPress={() => {
-            store.dispatch(asyncSaveWeatherList(this.state.searchString));
-
-            this.onSelect(this.state.searchString);
-          }}
-          style={{backgroundColor: colors.awesomeOrange, padding: 100}}
-        /> */}
       </View>
     );
   };
@@ -81,6 +100,7 @@ class SearchBar extends Component {
             style={styles.searchInputStyle}
             placeholder={'Pesquisa'}
             placeholderTextColor={colors.lightOrange}
+            value={this.state.searchString}
           />
 
           <Icon
@@ -90,7 +110,7 @@ class SearchBar extends Component {
           />
         </View>
 
-        {this.state.searchString ? this.optionsContainer() : <View />}
+        {this.state.searchBox ? this.optionsContainer() : <View />}
       </View>
     );
   }
