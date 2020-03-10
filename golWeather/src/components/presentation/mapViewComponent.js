@@ -6,14 +6,12 @@ export const MapViewComponent = ({latitude, longitude}) => {
   return (
     <MapView
       style={styles.mapContainer}
-      region={
-        new AnimatedRegion({
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        })
-      }
+      region={{
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
       initialRegion={{
         latitude: 37.78825,
         longitude: -122.4324,

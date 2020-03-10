@@ -7,9 +7,9 @@ import {
 import {horizontalScale, verticalScale} from 'golWeather/src/commons/scaling';
 import colors from 'golWeather/src/commons/colors';
 
-export const GenericButton = ({text}) => {
+export const GenericButton = ({text, onPress}) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity onPress={() => onPress()} style={styles.container}>
       <GenericTextComponent color={colors.white} text={text} />
     </TouchableOpacity>
   );

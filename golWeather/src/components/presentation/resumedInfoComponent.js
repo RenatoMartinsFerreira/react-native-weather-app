@@ -1,7 +1,11 @@
 import React from 'react';
 import {StyleSheet, View, Dimensions, TouchableOpacity} from 'react-native';
 import Icon from 'golWeather/src/commons/icons';
-import {fontScale, horizontalScale} from 'golWeather/src/commons/scaling';
+import {
+  fontScale,
+  horizontalScale,
+  verticalScale,
+} from 'golWeather/src/commons/scaling';
 import colors from 'golWeather/src/commons/colors';
 
 import {
@@ -13,11 +17,13 @@ import {
 export const ResumedInfoComponent = ({
   title = 'Busque Por Cidades',
   icon = 'lr',
-  onOpen = () => {},
   temp = 0,
   date = '00/00/00',
+  onOpen = () => {},
+  updateWeather = () => {},
+  waitSearch = true,
 }) => {
-  return (
+  return waitSearch ? (
     <View style={styles.visibleBottomContainer}>
       <TouchableOpacity
         onPress={() => {
@@ -33,12 +39,6 @@ export const ResumedInfoComponent = ({
 
       <View style={styles.verticalLine}>
         <GenericTextComponent text={title} />
-
-        <Icon
-          name={'favorite'}
-          color={colors.awesomeOrange}
-          size={fontScale(34)}
-        />
       </View>
       <View style={styles.verticalLine}>
         <IconTextComponent
@@ -48,7 +48,22 @@ export const ResumedInfoComponent = ({
         />
         <GenericTextComponent text={`${parseFloat(temp).toFixed(2)} ºC`} />
       </View>
-      <GenericButton text={'Atualizar previsão'} />
+      <GenericButton
+        onPress={() => updateWeather()}
+        text={'Atualizar previsão'}
+      />
+    </View>
+  ) : (
+    <View
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: verticalScale(10),
+      }}>
+      <GenericTextComponent
+        color={colors.awesomeOrange}
+        text={'Busque por cidades para ver o clima!'}
+      />
     </View>
   );
 };

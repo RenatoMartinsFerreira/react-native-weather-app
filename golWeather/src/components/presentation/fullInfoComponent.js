@@ -19,7 +19,11 @@ import {
   WeatherItemComponent,
 } from 'golWeather/src/components/presentation';
 
-export const FullInfoComponent = ({onClose = () => {}, weatherList = []}) => {
+export const FullInfoComponent = ({
+  onClose = () => {},
+  weatherList = [],
+  updateWeather = () => {},
+}) => {
   return (
     <View style={styles.visibleBottomContainer}>
       <TouchableOpacity
@@ -64,7 +68,10 @@ export const FullInfoComponent = ({onClose = () => {}, weatherList = []}) => {
         )}
       />
 
-      <GenericButton text={'Atualizar previsão'} />
+      <GenericButton
+        onPress={() => updateWeather()}
+        text={'Atualizar previsão'}
+      />
     </View>
   );
 };

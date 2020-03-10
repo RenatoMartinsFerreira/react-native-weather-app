@@ -7,17 +7,18 @@ import {
   Dimensions,
   Animated,
   Easing,
-  Text,
 } from 'react-native';
 import {horizontalScale, verticalScale} from 'golWeather/src/commons/scaling';
 import colors from 'golWeather/src/commons/colors';
-import MapView, {AnimatedRegion} from 'react-native-maps';
 
 import {
   ResumedInfoComponent,
   MapViewComponent,
   FullInfoComponent,
 } from 'golWeather/src/components/presentation';
+
+import {store} from 'golWeather/src/redux/store';
+import {asyncSetWeather} from 'golWeather/src/redux/actions';
 
 import SearchBar from 'golWeather/src/components/presentation/searchBar';
 
@@ -41,16 +42,31 @@ class HomeScene extends Component {
     }).start(() => {});
   }
 
+  updateWeather() {
+    store.dispatch(asyncSetWeather(this.props.currentWeather.woeid));
+  }
+
   resumedInfo = () => {
     return (
       <ResumedInfoComponent
         title={this.props.currentWeather.title}
+        waitSearch={
+          this.props.currentWeather.consolidated_weather ? true : false
+        }
         icon={
-          this.props.currentWeather.consolidated_weather[0].weather_state_abbr
+          this.props.currentWeather.consolidated_weather
+            ? this.props.currentWeather.consolidated_weather[0]
+                .weather_state_abbr
+            : ''
         }
         onOpen={() => this.switchInfo()}
-        temp={this.props.currentWeather.consolidated_weather[0].the_temp}
+        temp={
+          this.props.currentWeather.consolidated_weather
+            ? this.props.currentWeather.consolidated_weather[0].the_temp
+            : ''
+        }
         date={new Date(this.props.currentWeather.time).toLocaleDateString()}
+        updateWeather={() => this.updateWeather()}
       />
     );
   };
@@ -58,8 +74,13 @@ class HomeScene extends Component {
   fullInfo = () => {
     return (
       <FullInfoComponent
-        weatherList={this.props.currentWeather.consolidated_weather}
+        weatherList={
+          this.props.currentWeather
+            ? this.props.currentWeather.consolidated_weather
+            : []
+        }
         onClose={() => this.switchInfo()}
+        updateWeather={() => this.updateWeather()}
       />
     );
   };
@@ -104,10 +125,14 @@ class HomeScene extends Component {
 
           <MapViewComponent
             latitude={parseFloat(
-              this.props.currentWeather.latt_long.split(',')[0],
+              this.props.currentWeather.latt_long
+                ? this.props.currentWeather.latt_long.split(',')[0]
+                : 12,
             )}
             longitude={parseFloat(
-              this.props.currentWeather.latt_long.split(',')[1],
+              this.props.currentWeather.latt_long
+                ? this.props.currentWeather.latt_long.split(',')[1]
+                : 12,
             )}
           />
         </SafeAreaView>
